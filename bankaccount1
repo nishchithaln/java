@@ -1,0 +1,38 @@
+//@nishchithaln
+//program for creating a bank account
+
+package bankaccount;
+import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.Iterator;
+
+public class CreateAccount {
+public static void main(String args[])
+{
+	Scanner sc = new Scanner(System.in);
+	System.out.println("create a new account");
+	ArrayList acc = new ArrayList();
+	System.out.println("enter the name:");
+	String name = sc.nextLine();
+	acc.add(name);
+	System.out.println(" enter the account number by refering from bank:");
+	int accno = sc.nextInt();
+	acc.add(accno);
+	System.out.println("enter the adhar card number:");
+	int adhar = sc.nextInt();
+	acc.add(adhar);
+	System.out.println("enter the pancard number:");
+	String pancardno = sc.next();
+	acc.add(pancardno);
+	System.out.println("adress:");
+	String address = sc.next();
+	acc.add(address);
+	System.out.println("details of the account holder is:");
+	Iterator itr = acc.iterator();
+	sc.close();
+	while(itr.hasNext())
+		{
+		System.out.println(itr.next());
+		}
+		}
+}
