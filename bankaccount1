@@ -16,10 +16,10 @@ public static void main(String args[])
 	String name = sc.nextLine();
 	acc.add(name);
 	System.out.println(" enter the account number by refering from bank:");
-	int accno = sc.nextInt();
+	long accno = sc.nextLong();
 	acc.add(accno);
 	System.out.println("enter the adhar card number:");
-	int adhar = sc.nextInt();
+	long adhar = sc.nextLong();
 	acc.add(adhar);
 	System.out.println("enter the pancard number:");
 	String pancardno = sc.next();
