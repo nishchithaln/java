@@ -1,25 +1,66 @@
 //@nishchithaln
-//program for creating a bank account
-
 package bankaccount;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Iterator;
+class SavingsAccount {
+
+    private double balance; 	//data members
+	private static double interest;//static variables
+
+	 SavingsAccount()//Default Constructor
+	{
+		balance = 0;
+		interest = 0;
+	}
+
+	 SavingsAccount(double initialBalance, double initialInterest)//parameterized constructor
+	{
+		balance = initialBalance;
+		interest = initialInterest;
+	}
+
+	public void deposit(double amount)//member function
+	{
+		balance = balance + amount;
+	}
+
+	public void withdraw(double amount)
+	{
+		balance = balance - amount;
+	}
+
+	public void addInterest()
+	{
+		balance = balance + balance * interest;
+	}
+
+	public double getBalance()
+	{
+		return balance;
+	} 
+
+}
 
 public class CreateAccount {
 public static void main(String args[])
 {
+	double wdAmount;
+	double depAmount;
+	double balance=0;
+	double interest=0.20;
+	
 	Scanner sc = new Scanner(System.in);
 	System.out.println("create a new account");
-	ArrayList acc = new ArrayList();
+	ArrayList acc = new ArrayList();//arrarylist object
 	System.out.println("enter the name:");
 	String name = sc.nextLine();
 	acc.add(name);
 	System.out.println(" enter the account number by refering from bank:");
 	long accno = sc.nextLong();
 	acc.add(accno);
-	System.out.println("enter the adhar card number:");
-	long adhar = sc.nextLong();
+	System.out.println("enter the adhar card number:");  
+    long adhar = sc.nextLong();
 	acc.add(adhar);
 	System.out.println("enter the pancard number:");
 	String pancardno = sc.next();
@@ -29,10 +70,42 @@ public static void main(String args[])
 	acc.add(address);
 	System.out.println("details of the account holder is:");
 	Iterator itr = acc.iterator();
-	sc.close();
-	while(itr.hasNext())
+
+	while(itr.hasNext())//loop control statement
 		{
 		System.out.println(itr.next());
 		}
-		}
+	System.out.println("enter the amount in your saving account");	
+	balance=sc.nextDouble();
+	if (balance >= 500)//conditional statement
+    {
+        System.out.println();
+        System.out.println();
+        System.out.println("***********ACCOUNT  CREATED  SUCCESSFULLY**********");
+        System.out.println("COSTUMER NAME:  "+ name);
+        System.out.println("ACCOUNT NUMBER: " + accno);
+        System.out.println();
+        System.out.println();
+
+    }
+    else if (balance < 500) {
+        System.out.println();
+        System.out.println("***************WARNING!!***********");
+        System.out.println("Initial Balance cannot be less than 500");
+        System.out.println();
+        balance=0;
+    }
+	
+	SavingsAccount nish1=new SavingsAccount(balance, interest);
+	System.out.println("enter the amount for withdraw");	
+	wdAmount=sc.nextDouble();
+	nish1.withdraw(wdAmount);
+	System.out.println("enter the deposit amount");	
+	depAmount=sc.nextDouble();
+	nish1.deposit(depAmount);
+	nish1.addInterest();
+	System.out.println("after trasaction your account balance is:");
+	System.out.println(nish1.getBalance());
+	//[(balance-withdraw)+deposit] => b => [b+(b*roi)]=final balance
+}
 }
