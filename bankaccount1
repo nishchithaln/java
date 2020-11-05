@@ -1,114 +1,377 @@
 //@nishchithaln
-package bankaccount;
-import java.util.ArrayList;
-import java.util.Scanner;
-import java.util.Iterator;
-class SavingsAccount
+import java.text.DecimalFormat;
+import java.util.*;
+class Login
 {
+	String uname;
+	String pass;
+	void login() throws InputMismatchException
+	{
+		Scanner sc=new Scanner(System.in);
+		System.out.println("                 Welcome To MYBANK               ");
+		System.out.println("Enter Username:");
+		uname=sc.nextLine();
+		System.out.println("Enter Password");
+		pass=sc.next();
+		
+		if(uname.equals("admin"))
+		{
+			if(pass.contentEquals("admin"))
+			{
+		        System.out.println("Login Successfull");
+			}
+			else
+			{
+				System.out.println("please enter valid username and password");
+				System.exit(0);
+			}
+		}
+		else
+		{ 
+			System.out.println("please enter valid username and password");
+			System.exit(0);
+		}	
+		
+	}
+}
+// using interface
+interface CreateAcc
+{
+	void accNoGenerator();
+	void input();
+	void display();
+}
 
-        private double balance; 	//data members
-	private static double interest; //static variables
+class SavingsAccount implements CreateAcc
+{
+		Scanner sc = new Scanner(System.in);
+		String name;
+		long mobile;
+		String mail;
+		long adhar;
+		String pan;
+		int accno;
+		String address;
+		String cname;
+		double csal;
+		String cadd;
+		String ifsc="MYBANK1920";
+		StringBuilder sb=new StringBuilder(ifsc);
+		String sifsc=ifsc.substring(6,10);
+		public String getName() {
+			return name;
+		}
+		public void setName(String name) {
+			this.name = name;
+		}
+	public void accNoGenerator()
+	{
+		long min=1000000001;
+		long max=2000000001;
+        accno = (int)(Math.random() * (max - min + 1) + min);
+	}
+    public void input()
+    {
+    	System.out.println("Enter Your full Name:");
+    	name=sc.nextLine();
+    	this.setName(name);
+    	System.out.println("Enter MobileNo:");
+    	mobile=sc.nextLong();
+    	System.out.println("Enter Your MailID:");
+    	mail=sc.next();
+    	System.out.println("Enter Adhar Number:");
+    	adhar=sc.nextLong();
+    	System.out.println("Enter PAN Number:");
+    	pan=sc.next();	
+    	System.out.println("Enter Current Address:");
+    	address=sc.next();
+    }
+	public void display()
+	{
+		System.out.println("Account Type: SAVINGS");
+		System.out.println("Account NUmber:"+sifsc+accno);
+		System.out.println("Account Name:"+getName());
+		System.out.println("Mobile:"+mobile);
+		System.out.println("Mail ID:"+mail);
+		System.out.println("Adhar Number:"+adhar);
+		System.out.println("PAN Number:"+pan);
+		System.out.println("Address:"+address);
+	}
+		
+}
+class SalaryAccount extends SavingsAccount implements CreateAcc
+{
+	public void accNoGenerator()
+	{
+		long min=1000000001;
+		long max=2000000001;
+        accno = (int)(Math.random() * (max - min + 1) + min);
+	}
+	public void input()
+    {
+		System.out.println("ENTER PERSONAL DETAILS:");
+    	System.out.println("Enter Your full Name:");
+    	name=sc.nextLine();
+    	this.setName(name);
+    	System.out.println("Enter MobileNo:");
+    	mobile=sc.nextLong();
+    	System.out.println("Enter Your MailID:");
+    	mail=sc.next();
+    	System.out.println("Enter Adhar Number:");
+    	adhar=sc.nextLong();
+    	System.out.println("Enter PAN Number:");
+    	pan=sc.next();	
+    	System.out.println("Enter Current Address:");
+    	address=sc.next();
+    	System.out.println("ENTER COMPANY DETAILS:");
+    	System.out.println("Enter Company Name:");
+    	cname=sc.next();
+    	System.out.println("Enter Monthly Salary:");
+    	csal=sc.nextDouble();
+    	System.out.println("Enter Company Address");
+    	cadd=sc.next();
+    }
+	public void display()
+	{
+		System.out.println("Account Type: SALARY ACCOUNT");
+		System.out.println("Account NUmber:"+sifsc+accno);
+		System.out.println("Account Name:"+getName());
+		System.out.println("Mobile:"+mobile);
+		System.out.println("Mail ID:"+mail);
+		System.out.println("Adhar Number:"+adhar);
+		System.out.println("PAN Number:"+pan);
+		System.out.println("Address:"+address);
+		System.out.println("Company Details:");
+		System.out.println("Company Name:"+cname+"\nCompany address:"+cadd);
+	}
+	
+}
+//using abstraction
+abstract class Account 
+{
+   	double balance;
+	double interest;
+	public double getInterest() {
+		return interest;
+	}
+	public void setInterest(double interest) {
+		this.interest = interest;
+	}
+	public double getBalance() {
+		return balance;
+	}
+	public void setBalance(double balance) {
+		this.balance = balance;
+	}
+	final public void deposit(double amount)
+	 {
+		 balance = balance + amount;
+	 }
+	 abstract public void withdraw(double amount);
+	 abstract public void display();
+}
 
-	 SavingsAccount()//Default Constructor
+class Savings extends Account
+{
+	Savings()//Default Constructor
 	{
 		balance = 0;
 		interest = 0;
 	}
 
-	 SavingsAccount(double initialBalance, double initialInterest)//parameterized constructor
+	Savings(double initialBalance, double initialInterest)//parameterized constructor
 	{
 		balance = initialBalance;
 		interest = initialInterest;
 	}
 
-	public void deposit(double amount)//member function
-	{
-		balance = balance + amount;
-	}
-
 	public void withdraw(double amount)
 	{
-		balance = balance - amount;
+		if(amount<=balance)
+			balance = balance - amount;
+		else
+			System.out.println("Insufficient funds");
 	}
-
-	public void addInterest()
+	
+	public void display()//method overloading
 	{
-		balance = balance + balance * interest;
+		System.out.println("Current Balance: "+this.getBalance());
+		
 	}
-
-	public double getBalance()
+	public void display(String date)////method overloading
 	{
-		return balance;
-	} 
-
+		System.out.println(date+"\nyour balance is:"+this.getBalance());
+	
+	}
 }
 
-public class CreateAccount
+class Loan
 {
-	public static void main(String args[])
+	
+	float pamount;//principle amount
+	float tperiod;//tenure
+	static float roi;//static variable
+	float mi;//monthly interest
+	float ta;//total amount you paid
+	DecimalFormat dc=new DecimalFormat("#");
+	float ti;//total interest
+	static //static block
 	{
-		double wdAmount;
-		double depAmount;
-		double balance=0;
-		double interest=0.20;
+		roi=10.0f;
+	}
 	
-		Scanner sc = new Scanner(System.in);
-		System.out.println("create a new account");
-		ArrayList acc = new ArrayList();//arrarylist object
-		System.out.println("enter the name:");
-		String name = sc.nextLine();
-		acc.add(name);
-		System.out.println(" enter the account number by refering from bank:");
-		long accno = sc.nextLong();
-		acc.add(accno);
-		System.out.println("enter the adhar card number:");  
-        	long adhar = sc.nextLong();
-		acc.add(adhar);
-		System.out.println("enter the pancard number:");
-		String pancardno = sc.next();
-		acc.add(pancardno);
-		System.out.println("adress:");
-		String address = sc.next();
-		acc.add(address);
-		System.out.println("details of the account holder is:");
-		Iterator itr = acc.iterator();
-
-		while(itr.hasNext())//loop control statement
-		{
-			System.out.println(itr.next());
-		}
-		System.out.println("enter the amount in your saving account");	
-		balance=sc.nextDouble();
-		if (balance >= 500)//conditional statement
-   		 {
-        	System.out.println();
-        	System.out.println();
-        	System.out.println("***********ACCOUNT  CREATED  SUCCESSFULLY**********");
-        	System.out.println("COSTUMER NAME:  "+ name);
-       	 	System.out.println("ACCOUNT NUMBER: " + accno);
-        	System.out.println();
-       		System.out.println();
-
-  		 }
-    		else if (balance < 500) 
-		{
-        	System.out.println();
-        	System.out.println("***************WARNING!!***********");
-       	 	System.out.println("Initial Balance cannot be less than 500");
-        	System.out.println();
-        	balance=0;
-   		 }
-	
-	SavingsAccount nish1=new SavingsAccount(balance, interest);
-	System.out.println("enter the amount for withdraw");	
-	wdAmount=sc.nextDouble();
-	nish1.withdraw(wdAmount);
-	System.out.println("enter the deposit amount");	
-	depAmount=sc.nextDouble();
-	nish1.deposit(depAmount);
-	nish1.addInterest();
-	System.out.println("after trasaction your account balance is:");
-	System.out.println(nish1.getBalance());
-	//[(balance-withdraw)+deposit] => b => [b+(b*roi)]=final balance
+	void input()
+	{
+		Scanner sc=new Scanner(System.in);
+		System.out.println("Enter the principle amount");
+		pamount=sc.nextFloat();
+		System.out.println("Enter the time period");
+		tperiod=sc.nextFloat();
+	}
+	static void disp()//static function
+	{
+		System.out.println("the rate of interst is:"+roi);
+	}
+	void compute()
+	{
+		roi=roi/(12*100);
+		tperiod=tperiod*12;
+		mi=(pamount*roi*(float)Math.pow(1+roi,tperiod))/((float)Math.pow(1+roi,tperiod)-1);
+		ta=mi*tperiod;
+		ti=ta-pamount;
+	}
+	 void display()
+	{
+		 System.out.println("");
+		System.out.println("The monthly EMI is:"+dc.format(mi));	
+		System.out.println("the total interest is:"+dc.format(ti));
+		System.out.println("the total amount is:"+dc.format(ta));
+	}
+		
 }
+
+
+public class BankApp2
+{
+	public static void main(String[] args)
+	{
+		try
+		{
+		String type = null;
+		Login l=new Login();
+		l.login();
+		ArrayList<String> al=new ArrayList<String>();
+		SavingsAccount sav=new SavingsAccount();
+		SalaryAccount sal=new SalaryAccount();
+		Savings s=new Savings(0,0.10);
+		Loan l1=new Loan();
+		Date date = new Date();
+		String strDate = String.format("%tY-%<tm-%<td %<tH:%<tM:%<tS", date);
+		Scanner sc=new Scanner(System.in);
+		boolean repeat=true;
+		do {
+		System.out.print("---------------------------------------------\n               MENU           \n---------------------------------------------\n");
+		System.out.println("1.Create Account\n2.Account Information\n3.Cash Deposit\n4.Cash withdrawl\n5.last transactions:\n6.check balance\n7.loan \n8.logout\n---------------------------------------------");
+		int choice=sc.nextInt();
+		
+		switch(choice)
+		{
+		case 1:
+			System.out.println("Create a new account");
+			System.out.println("enter choice:\na.savings account\nb.salary account");
+			char choice1=sc.next().charAt(0);
+			switch(choice1)
+			{
+			case 'a':
+				System.out.println("Create a new savings account");
+				type="savings";
+				sav.accNoGenerator();
+				sav.input();
+		        break;
+			case 'b':
+				System.out.println("Create a new salary account");
+				type="salary";
+				sal.accNoGenerator();
+				sal.input();
+		        break;
+			}
+			break;
+		case 2:
+			System.out.println("Account Informtion:");
+			if(type.equalsIgnoreCase("savings"))
+			{
+				sav.display();
+			}
+			else
+			{
+				sal.display();
+			}
+			break;
+			
+		case 3:	
+			System.out.println("Enter deposit amount");
+			double damount=sc.nextDouble();
+			System.out.println("hello "+sav.getName()+",\nAccoont Number:"+sav.sifsc+sav.accno);
+			s.deposit(damount);
+			Date d1=new Date();
+			strDate = String.format("%tY-%<tm-%<td %<tH:%<tM:%<tS", d1);
+			String dep="deposited:"+damount+" date: "+strDate;
+			al.add(dep);
+			s.display();
+			break;
+		case 4:
+			System.out.println("Cash Withdrawl");
+			double wamount=sc.nextDouble();
+			System.out.println("hello, "+sav.name);
+			s.withdraw(wamount);
+			Date d2=new Date();
+			strDate = String.format("%tY-%<tm-%<td %<tH:%<tM:%<tS", d2);
+			String wit="withdraw:"+wamount+" date: "+strDate;
+			al.add(wit);
+			s.display();
+			break;
+		case 5:
+			for(Object p:al)
+			{
+				System.out.println(p);
+			}
+			break;
+		case 6:
+			System.out.println("hello "+sav.getName()+",\nAccoont Number:"+sav.sifsc+sav.accno);
+			s.display(strDate);
+			break;
+		case 7:
+			System.out.println("Loan Application");
+			l1.input();
+			if(15000<=s.balance)
+			{
+				System.out.println("You Eligible To Take A Loan");
+				l1.compute();
+				l1.display();
+			}
+			else
+			{
+				System.out.println("You Are Not Eligible To Take A Loan");
+			}
+			
+			break;
+		case 8:
+			System.out.println("Thank You "+sav.name);
+			repeat=false;
+			break;
+		default:
+				System.out.println("Invalid input");
+				break;
+				
+		}
+		}while(repeat);
+		}
+		catch(Exception e)
+		{
+			
+		}
+	
+	}
+		
+
 }
