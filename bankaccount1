@@ -1,39 +1,8 @@
 //@nishchithaln
+package bank;
+import login.login;
 import java.text.DecimalFormat;
 import java.util.*;
-class Login
-{
-	String uname;
-	String pass;
-	void login() throws InputMismatchException
-	{
-		Scanner sc=new Scanner(System.in);
-		System.out.println("                 Welcome To MYBANK               ");
-		System.out.println("Enter Username:");
-		uname=sc.nextLine();
-		System.out.println("Enter Password");
-		pass=sc.next();
-		
-		if(uname.equals("admin"))
-		{
-			if(pass.contentEquals("admin"))
-			{
-		        System.out.println("Login Successfull");
-			}
-			else
-			{
-				System.out.println("please enter valid username and password");
-				System.exit(0);
-			}
-		}
-		else
-		{ 
-			System.out.println("please enter valid username and password");
-			System.exit(0);
-		}	
-		
-	}
-}
 // using interface
 interface CreateAcc
 {
@@ -46,7 +15,7 @@ class SavingsAccount implements CreateAcc
 {
 		Scanner sc = new Scanner(System.in);
 		String name;
-		long mobile;
+		int mobile;
 		String mail;
 		long adhar;
 		String pan;
@@ -72,11 +41,13 @@ class SavingsAccount implements CreateAcc
 	}
     public void input()
     {
+    	try
+    	{
     	System.out.println("Enter Your full Name:");
-    	name=sc.nextLine();
+    	name=sc.next();
     	this.setName(name);
     	System.out.println("Enter MobileNo:");
-    	mobile=sc.nextLong();
+    	mobile=sc.nextInt();
     	System.out.println("Enter Your MailID:");
     	mail=sc.next();
     	System.out.println("Enter Adhar Number:");
@@ -85,6 +56,11 @@ class SavingsAccount implements CreateAcc
     	pan=sc.next();	
     	System.out.println("Enter Current Address:");
     	address=sc.next();
+    	}
+    	catch(Exception e)
+    	{
+    		System.out.println("please input correct format");
+    	}
     }
 	public void display()
 	{
@@ -109,12 +85,13 @@ class SalaryAccount extends SavingsAccount implements CreateAcc
 	}
 	public void input()
     {
+		try {
 		System.out.println("ENTER PERSONAL DETAILS:");
     	System.out.println("Enter Your full Name:");
-    	name=sc.nextLine();
+    	name=sc.next();
     	this.setName(name);
     	System.out.println("Enter MobileNo:");
-    	mobile=sc.nextLong();
+    	mobile=sc.nextInt();
     	System.out.println("Enter Your MailID:");
     	mail=sc.next();
     	System.out.println("Enter Adhar Number:");
@@ -130,12 +107,17 @@ class SalaryAccount extends SavingsAccount implements CreateAcc
     	csal=sc.nextDouble();
     	System.out.println("Enter Company Address");
     	cadd=sc.next();
+		}
+    	catch(InputMismatchException ime)
+    	{
+    		System.out.println("please input correct format");
+    	}
     }
 	public void display()
 	{
 		System.out.println("Account Type: SALARY ACCOUNT");
 		System.out.println("Account NUmber:"+sifsc+accno);
-		System.out.println("Account Name:"+getName());
+		System.out.println("Account holder Name:"+getName());
 		System.out.println("Mobile:"+mobile);
 		System.out.println("Mail ID:"+mail);
 		System.out.println("Adhar Number:"+adhar);
@@ -175,17 +157,19 @@ class Savings extends Account
 {
 	Savings()//Default Constructor
 	{
+		super();
 		balance = 0;
 		interest = 0;
 	}
 
 	Savings(double initialBalance, double initialInterest)//parameterized constructor
 	{
+		super();
 		balance = initialBalance;
 		interest = initialInterest;
 	}
 
-	public void withdraw(double amount)
+	public synchronized void withdraw(double amount)
 	{
 		if(amount<=balance)
 			balance = balance - amount;
@@ -193,7 +177,7 @@ class Savings extends Account
 			System.out.println("Insufficient funds");
 	}
 	
-	public void display()//method overloading
+	public synchronized void display()//function or method overloading
 	{
 		System.out.println("Current Balance: "+this.getBalance());
 		
@@ -203,16 +187,57 @@ class Savings extends Account
 		System.out.println(date+"\nyour balance is:"+this.getBalance());
 	
 	}
+
 }
 
-class Loan
+class Transaction implements Runnable
+{	
+	ArrayList<String> al=new ArrayList<String>();
+    String strDate;
+    String dep;
+	
+	public void dipTrans(double damount)
+	{
+		Date d1=new Date();
+		strDate = String.format("%tY-%<tm-%<td %<tH:%<tM:%<tS", d1);
+		dep="deposited:"+damount+" date: "+strDate;
+		al.add(dep);
+	}
+	
+	public void withTrans(double wamount)
+	{
+		Date d2=new Date();
+		strDate = String.format("%tY-%<tm-%<td %<tH:%<tM:%<tS", d2);
+		String wit="withdraw:"+wamount+" date: "+strDate;
+		al.add(wit);
+	}
+	
+	public void run()
+	{
+		try
+		{
+		for(Object p:al)
+			{
+			System.out.println(p);
+			}
+		}
+		catch(IndexOutOfBoundsException ioe)
+		{
+			System.out.println("Index out of bounds exception occur");
+		}
+	}
+	
+	
+}
+
+class Loan extends Thread
 {
 	
 	float pamount;//principle amount
 	float tperiod;//tenure
 	static float roi;//static variable
 	float mi;//monthly interest
-	float ta;//total amount you paid
+	float ta;//total amount you paid444
 	DecimalFormat dc=new DecimalFormat("#");
 	float ti;//total interest
 	static //static block
@@ -228,43 +253,56 @@ class Loan
 		System.out.println("Enter the time period");
 		tperiod=sc.nextFloat();
 	}
-	static void disp()//static function
+	static void disp()
 	{
 		System.out.println("the rate of interst is:"+roi);
 	}
-	void compute()
+
+	public void run()
 	{
+		
 		roi=roi/(12*100);
 		tperiod=tperiod*12;
 		mi=(pamount*roi*(float)Math.pow(1+roi,tperiod))/((float)Math.pow(1+roi,tperiod)-1);
 		ta=mi*tperiod;
 		ti=ta-pamount;
+		
 	}
-	 void display()
+	void display()
 	{
-		 System.out.println("");
-		System.out.println("The monthly EMI is:"+dc.format(mi));	
+		System.out.println("");
+		//System.out.println("The monthly EMI is:"+dc.format(mi));	
 		System.out.println("the total interest is:"+dc.format(ti));
 		System.out.println("the total amount is:"+dc.format(ta));
 	}
-		
+	static class display
+	{
+		void printMessage()
+		{
+			System.out.println("excutive manager will contact you shortly");
+		}
+	}
 }
 
 
-public class BankApp2
+public class BankApp
 {
 	public static void main(String[] args)
 	{
 		try
 		{
+		login l=new login();
+		l.login();	
 		String type = null;
-		Login l=new Login();
-		l.login();
 		ArrayList<String> al=new ArrayList<String>();
 		SavingsAccount sav=new SavingsAccount();
 		SalaryAccount sal=new SalaryAccount();
 		Savings s=new Savings(0,0.10);
+		Transaction t=new Transaction();
+		Thread t1=new Thread(t);//runnable interface
+		
 		Loan l1=new Loan();
+		Loan.display ld=new Loan.display();
 		Date date = new Date();
 		String strDate = String.format("%tY-%<tm-%<td %<tH:%<tM:%<tS", date);
 		Scanner sc=new Scanner(System.in);
@@ -313,10 +351,8 @@ public class BankApp2
 			double damount=sc.nextDouble();
 			System.out.println("hello "+sav.getName()+",\nAccoont Number:"+sav.sifsc+sav.accno);
 			s.deposit(damount);
-			Date d1=new Date();
-			strDate = String.format("%tY-%<tm-%<td %<tH:%<tM:%<tS", d1);
-			String dep="deposited:"+damount+" date: "+strDate;
-			al.add(dep);
+			t.dipTrans(damount);
+			
 			s.display();
 			break;
 		case 4:
@@ -324,17 +360,11 @@ public class BankApp2
 			double wamount=sc.nextDouble();
 			System.out.println("hello, "+sav.name);
 			s.withdraw(wamount);
-			Date d2=new Date();
-			strDate = String.format("%tY-%<tm-%<td %<tH:%<tM:%<tS", d2);
-			String wit="withdraw:"+wamount+" date: "+strDate;
-			al.add(wit);
+			t.withTrans(wamount);
 			s.display();
 			break;
 		case 5:
-			for(Object p:al)
-			{
-				System.out.println(p);
-			}
+			t1.start();
 			break;
 		case 6:
 			System.out.println("hello "+sav.getName()+",\nAccoont Number:"+sav.sifsc+sav.accno);
@@ -346,8 +376,10 @@ public class BankApp2
 			if(15000<=s.balance)
 			{
 				System.out.println("You Eligible To Take A Loan");
-				l1.compute();
+				l1.start();
 				l1.display();
+				ld.printMessage();
+				
 			}
 			else
 			{
@@ -366,7 +398,7 @@ public class BankApp2
 		}
 		}while(repeat);
 		}
-		catch(Exception e)
+		catch(Exception e)//generic exeption
 		{
 			
 		}
@@ -374,4 +406,45 @@ public class BankApp2
 	}
 		
 
+}
+
+//implementation of package login
+package login;
+
+import java.util.Scanner;
+
+
+public class login
+{
+	String uname;
+	String pass;
+	public void login() 
+	{
+		Scanner sc=new Scanner(System.in);
+		System.out.println("                 Welcome To MYBANK               ");
+		System.out.println("Enter Username:");
+		uname=sc.nextLine();
+		System.out.println("Enter Password");
+		pass=sc.next();
+		
+		if(uname.equals("admin"))
+		{
+			if(pass.contentEquals("admin"))
+			{
+		        System.out.println("Login Successfull");
+			}
+			else
+			{
+				System.out.println("please enter valid username and password");
+				System.exit(0);
+			}
+		}
+		else
+		{ 
+			System.out.println("please enter valid username and password");
+			System.exit(0);
+		}	
+		
+	}
+	
 }
