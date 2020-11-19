@@ -289,6 +289,12 @@ public class BankApp
 {
 	public static void main(String[] args)
 	{
+		System.out.println("main invoked with :"+args.length+" ARGUMENTS");
+		for(String arg:args)
+		{
+			System.out.println(arg);
+		}
+
 		try
 		{
 		login l=new login();
