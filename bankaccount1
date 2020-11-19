@@ -145,10 +145,7 @@ abstract class Account
 	public void setBalance(double balance) {
 		this.balance = balance;
 	}
-	final public void deposit(double amount)
-	 {
-		 balance = balance + amount;
-	 }
+	abstract public void deposit(double amount);
 	 abstract public void withdraw(double amount);
 	 abstract public void display();
 }
@@ -172,10 +169,26 @@ class Savings extends Account
 	public synchronized void withdraw(double amount)
 	{
 		if(amount<=balance)
+		{
 			balance = balance - amount;
+		}
 		else
+		{
 			System.out.println("Insufficient funds");
+			try{
+				wait();
+				}
+			catch(Exception e)
+			{
+				
+			}
+		}
 	}
+	public synchronized void deposit(double amount)
+	 {
+		 balance = balance + amount;
+		 notify();
+	 }
 	
 	public synchronized void display()//function or method overloading
 	{
@@ -306,7 +319,7 @@ public class BankApp
 		Savings s=new Savings(0,0.10);
 		Transaction t=new Transaction();
 		Thread t1=new Thread(t);//runnable interface
-		
+
 		Loan l1=new Loan();
 		Loan.display ld=new Loan.display();
 		Date date = new Date();
@@ -356,16 +369,27 @@ public class BankApp
 			System.out.println("Enter deposit amount");
 			double damount=sc.nextDouble();
 			System.out.println("hello "+sav.getName()+",\nAccoont Number:"+sav.sifsc+sav.accno);
+			new Thread()
+			{
+			public void run()
+			{
 			s.deposit(damount);
+			}
+			}.start();
 			t.dipTrans(damount);
-			
 			s.display();
 			break;
 		case 4:
 			System.out.println("Cash Withdrawl");
 			double wamount=sc.nextDouble();
 			System.out.println("hello, "+sav.name);
+			new Thread()
+			{
+			public void run()
+			{
 			s.withdraw(wamount);
+			}
+			}.start();
 			t.withTrans(wamount);
 			s.display();
 			break;
