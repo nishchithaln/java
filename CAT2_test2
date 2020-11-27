@@ -1,32 +1,3 @@
-Msc(CS)-JAVA Theory and Lab
-Test2-CAT2 Question
-Prabu P Computer Science
-•
-Nov 26
-100 points
-Due Nov 26, 1:15 PM
-
-CAT2 MSC JAVA QUS.docx
-Word
-Class comments
-
-Your work
-Turned in
-
-Test2-CAT2 Question (26-Nov-2020 11:06:00 AM).jpeg
-Image
-
-Test2-CAT2 Question (26-Nov-2020 11:07:45 AM).jpeg
-Image
-
-Bankdetails.docx
-Word
-
-Bankdetails.java
-Java
-Private comments
-
-
 import java.util.Scanner;
 import java.util.*;
 interface Bank {
