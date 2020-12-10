@@ -129,7 +129,7 @@ class SalaryAccount extends SavingsAccount implements CreateAcc
 	
 }
 //using abstraction
-abstract class Account 
+abstract class Account
 {
    	double balance;
 	double interest;
@@ -150,19 +150,20 @@ abstract class Account
 	 abstract public void display();
 }
 
-class Savings extends Account
+class Savings<T,U> extends Account
 {
+	  
 	Savings()//Default Constructor
 	{
 		super();
-		balance = 0;
-		interest = 0;
+		balance = 0.00;
+		interest = 0.00;
 	}
 
 	Savings(double initialBalance, double initialInterest)//parameterized constructor
 	{
 		super();
-		balance = initialBalance;
+		balance = (double) initialBalance;
 		interest = initialInterest;
 	}
 
@@ -197,7 +198,7 @@ class Savings extends Account
 	}
 	public void display(String date)////method overloading
 	{
-		System.out.println(date+"\nyour balance is:"+this.getBalance());
+		System.out.println(date+"\n  your balance is:"+this.getBalance());
 	
 	}
 
@@ -205,7 +206,7 @@ class Savings extends Account
 
 class Transaction implements Runnable
 {	
-	ArrayList<String> al=new ArrayList<String>();
+	LinkedList<String> al=new LinkedList<String>();
     String strDate;
     String dep;
 	
@@ -314,9 +315,10 @@ public class BankApp
 		l.login();	
 		String type = null;
 		ArrayList<String> al=new ArrayList<String>();
+		
 		SavingsAccount sav=new SavingsAccount();
 		SalaryAccount sal=new SalaryAccount();
-		Savings s=new Savings(0,0.10);
+		Savings<Integer,Double> s=new Savings<Integer,Double>(0.0,0.10);
 		Transaction t=new Transaction();
 		Thread t1=new Thread(t);//runnable interface
 
