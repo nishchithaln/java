@@ -1,8 +1,26 @@
-//@nishchithaln
+
 package bank;
-import login.login;
+import javax.swing.*;
+
+import login.logininfo;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+//import login.logininfo;
 // using interface
 interface CreateAcc
 {
@@ -15,7 +33,7 @@ class SavingsAccount implements CreateAcc
 {
 		Scanner sc = new Scanner(System.in);
 		String name;
-		int mobile;
+		long mobile;
 		String mail;
 		long adhar;
 		String pan;
@@ -23,6 +41,7 @@ class SavingsAccount implements CreateAcc
 		String address;
 		String cname;
 		double csal;
+		String acc;
 		String cadd;
 		String ifsc="MYBANK1920";
 		StringBuilder sb=new StringBuilder(ifsc);
@@ -38,6 +57,7 @@ class SavingsAccount implements CreateAcc
 		long min=1000000001;
 		long max=2000000001;
         accno = (int)(Math.random() * (max - min + 1) + min);
+       acc=sifsc+accno;
 	}
     public void input()
     {
@@ -47,7 +67,7 @@ class SavingsAccount implements CreateAcc
     	name=sc.next();
     	this.setName(name);
     	System.out.println("Enter MobileNo:");
-    	mobile=sc.nextInt();
+    	mobile=sc.nextLong();
     	System.out.println("Enter Your MailID:");
     	mail=sc.next();
     	System.out.println("Enter Adhar Number:");
@@ -91,7 +111,7 @@ class SalaryAccount extends SavingsAccount implements CreateAcc
     	name=sc.next();
     	this.setName(name);
     	System.out.println("Enter MobileNo:");
-    	mobile=sc.nextInt();
+    	mobile=sc.nextLong();
     	System.out.println("Enter Your MailID:");
     	mail=sc.next();
     	System.out.println("Enter Adhar Number:");
@@ -129,7 +149,7 @@ class SalaryAccount extends SavingsAccount implements CreateAcc
 	
 }
 //using abstraction
-abstract class Account
+abstract class Account 
 {
    	double balance;
 	double interest;
@@ -152,18 +172,17 @@ abstract class Account
 
 class Savings<T,U> extends Account
 {
-	  
 	Savings()//Default Constructor
 	{
 		super();
-		balance = 0.00;
-		interest = 0.00;
+		balance = 0;
+		interest = 0;
 	}
 
 	Savings(double initialBalance, double initialInterest)//parameterized constructor
 	{
 		super();
-		balance = (double) initialBalance;
+		balance = initialBalance;
 		interest = initialInterest;
 	}
 
@@ -198,15 +217,15 @@ class Savings<T,U> extends Account
 	}
 	public void display(String date)////method overloading
 	{
-		System.out.println(date+"\n  your balance is:"+this.getBalance());
+		System.out.println(date+"\nyour balance is:"+this.getBalance());
 	
 	}
 
 }
 
-class Transaction implements Runnable
+class Transaction<T> implements Runnable
 {	
-	LinkedList<String> al=new LinkedList<String>();
+	ArrayList<String> al=new ArrayList<String>();
     String strDate;
     String dep;
 	
@@ -244,16 +263,19 @@ class Transaction implements Runnable
 	
 }
 
-class Loan extends Thread
+class Loan
 {
 	
 	float pamount;//principle amount
-	float tperiod;//tenure
+	int tperiod;//tenure
 	static float roi;//static variable
 	float mi;//monthly interest
 	float ta;//total amount you paid444
 	DecimalFormat dc=new DecimalFormat("#");
 	float ti;//total interest
+	String dmi=null;
+	String dti=null;
+	String dta=null;
 	static //static block
 	{
 		roi=10.0f;
@@ -265,29 +287,30 @@ class Loan extends Thread
 		System.out.println("Enter the principle amount");
 		pamount=sc.nextFloat();
 		System.out.println("Enter the time period");
-		tperiod=sc.nextFloat();
+		tperiod=sc.nextInt();
 	}
 	static void disp()
 	{
 		System.out.println("the rate of interst is:"+roi);
 	}
 
-	public void run()
+	public void compute()
 	{
 		
 		roi=roi/(12*100);
 		tperiod=tperiod*12;
 		mi=(pamount*roi*(float)Math.pow(1+roi,tperiod))/((float)Math.pow(1+roi,tperiod)-1);
+		dmi=dc.format(mi);
 		ta=mi*tperiod;
+		dta=dc.format(ta);
 		ti=ta-pamount;
-		
+		dti=dc.format(ti);
 	}
 	void display()
 	{
-		System.out.println("");
-		//System.out.println("The monthly EMI is:"+dc.format(mi));	
-		System.out.println("the total interest is:"+dc.format(ti));
-		System.out.println("the total amount is:"+dc.format(ta));
+		System.out.println("Monthly EMI:"+dmi);
+		System.out.println("Total Interst:"+dti);
+		System.out.println("Total Loan Amount:"+dta);
 	}
 	static class display
 	{
@@ -298,9 +321,15 @@ class Loan extends Thread
 	}
 }
 
-
-public class BankApp
+public class BankApp 
 {
+	
+	static Connection con=null;
+	static  Statement stmt=null;
+	static ResultSet rst=null;
+	// static String qry="select * from loan";
+	static  PreparedStatement pstmt=null;
+	
 	public static void main(String[] args)
 	{
 		System.out.println("main invoked with :"+args.length+" ARGUMENTS");
@@ -308,29 +337,55 @@ public class BankApp
 		{
 			System.out.println(arg);
 		}
+		logininfo frame = new logininfo();
+	    frame.setTitle("Login Form");
+        frame.setVisible(true);
+        frame.setBounds(10, 10, 370, 600);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setResizable(false);
 
+		 try {
+			 Class.forName("oracle.jdbc.OracleDriver");
+				System.out.println("driver successfully loaded");
+				con= DriverManager.getConnection("jdbc:oracle:thin:@//localhost:1521/XE", "system", "system");
+				System.out.println("Connection Established");
+			
+			
+		
+			
+		 }
+			
+			catch (ClassNotFoundException | SQLException e)
+			{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		 
+		   
+		    
+		
 		try
 		{
-		login l=new login();
-		l.login();	
+			
+
 		String type = null;
-		ArrayList<String> al=new ArrayList<String>();
-		
 		SavingsAccount sav=new SavingsAccount();
 		SalaryAccount sal=new SalaryAccount();
-		Savings<Integer,Double> s=new Savings<Integer,Double>(0.0,0.10);
+		Savings<Integer, Double> s=new Savings<Integer, Double>(0,0.10); 
 		Transaction t=new Transaction();
-		Thread t1=new Thread(t);//runnable interface
-
 		Loan l1=new Loan();
+		Thread t1=new Thread(t);//runnable interface
 		Loan.display ld=new Loan.display();
 		Date date = new Date();
 		String strDate = String.format("%tY-%<tm-%<td %<tH:%<tM:%<tS", date);
 		Scanner sc=new Scanner(System.in);
+		
+
+		
 		boolean repeat=true;
 		do {
 		System.out.print("---------------------------------------------\n               MENU           \n---------------------------------------------\n");
-		System.out.println("1.Create Account\n2.Account Information\n3.Cash Deposit\n4.Cash withdrawl\n5.last transactions:\n6.check balance\n7.loan \n8.logout\n---------------------------------------------");
+		System.out.println("1.Create Account\n2.Account Information\n3.Cash Deposit\n4.Cash withdrawl\n5.last transactions:\n6.check balance\n7.loan\n8.Loan History \n9.logout\n---------------------------------------------");
 		int choice=sc.nextInt();
 		
 		switch(choice)
@@ -346,6 +401,17 @@ public class BankApp
 				type="savings";
 				sav.accNoGenerator();
 				sav.input();
+				pstmt=con.prepareStatement("INSERT INTO SAVACC VALUES(?,?,?,?,?,?,?)");
+				pstmt.setString(1, sav.name);
+				pstmt.setLong(2, sav.mobile);
+				pstmt.setString(3, sav.mail);
+				pstmt.setLong(4, sav.adhar);
+				pstmt.setString(5, sav.address);
+				pstmt.setString(6, sav.pan);
+				pstmt.setInt(7, sav.accno);
+				System.out.println("inserted");
+				pstmt.executeUpdate();
+				System.out.println("updated");
 		        break;
 			case 'b':
 				System.out.println("Create a new salary account");
@@ -379,6 +445,12 @@ public class BankApp
 			}
 			}.start();
 			t.dipTrans(damount);
+			pstmt=con.prepareStatement("INSERT INTO TRANS VALUES(?,?,?)");
+			pstmt.setString(1, t.strDate);
+			pstmt.setDouble(2,damount);
+			String ty="Deposited";
+			pstmt.setString(3,ty);
+			pstmt.executeUpdate();
 			s.display();
 			break;
 		case 4:
@@ -393,10 +465,27 @@ public class BankApp
 			}
 			}.start();
 			t.withTrans(wamount);
+			pstmt=con.prepareStatement("INSERT INTO TRANS VALUES(?,?,?)");
+			pstmt.setString(1, t.strDate);
+			pstmt.setDouble(2,wamount);
+			String tyw="withdraw";
+			pstmt.setString(3,tyw);
+			pstmt.executeUpdate();
 			s.display();
 			break;
 		case 5:
-			t1.start();
+			stmt=con.createStatement();
+			rst=stmt.executeQuery("select*from TRANS");
+			System.out.println("Date&Time           |Amount           |Type");	
+			while(rst.next())
+			{
+				String s1=rst.getString(1);
+				Double d1=rst.getDouble(2);
+				String s2=rst.getString(3);
+				System.out.println(s1+"              |"+d1+"             |"+s2);
+			} 
+		
+			//t1.start();
 			break;
 		case 6:
 			System.out.println("hello "+sav.getName()+",\nAccoont Number:"+sav.sifsc+sav.accno);
@@ -405,13 +494,23 @@ public class BankApp
 		case 7:
 			System.out.println("Loan Application");
 			l1.input();
+			pstmt=con.prepareStatement("INSERT INTO LOAN VALUES(?,?,?,?,?)");
+			l1.compute();
+			pstmt.setFloat(1, l1.roi);
+			pstmt.setFloat(2, l1.tperiod);
+			pstmt.setString(3, l1.dmi);
+			pstmt.setString(4, l1.dta);
+			pstmt.setString(5, l1.dti);
+			System.out.println("inserted");
+			int row=pstmt.executeUpdate();
+			System.out.println("updated");
+		    System.out.println(row);
+			
 			if(15000<=s.balance)
 			{
 				System.out.println("You Eligible To Take A Loan");
-				l1.start();
 				l1.display();
 				ld.printMessage();
-				
 			}
 			else
 			{
@@ -420,6 +519,21 @@ public class BankApp
 			
 			break;
 		case 8:
+			System.out.println("Loan History");
+			stmt=con.createStatement();
+			rst=stmt.executeQuery("Select * from loan");
+			System.out.println("|ROI		|Time Period	|Monthly Interest|Total Amount	|Total Interest");
+			while(rst.next())
+			{
+				float roi=rst.getFloat(1);
+				float tp=rst.getFloat(2);
+				String dmi=rst.getString(3);
+				String dta=rst.getString(4);rd
+				String dti=rst.getString(5);
+				System.out.println(roi+"	|"+tp+"		|"+dmi+"		|"+dta+"		|"+dti);
+			}
+			break;
+		case 9:
 			System.out.println("Thank You "+sav.name);
 			repeat=false;
 			break;
@@ -434,49 +548,115 @@ public class BankApp
 		{
 			
 		}
-	
+			
 	}
 		
 
 }
-
-//implementation of package login
+//package
 package login;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import java.util.Scanner;
+public class logininfo extends JFrame implements ActionListener {
+
+    Container container = getContentPane();
+    JLabel userLabel = new JLabel("USERNAME");
+    JLabel passwordLabel = new JLabel("PASSWORD");
+    JTextField userTextField = new JTextField();
+    JPasswordField passwordField = new JPasswordField();
+    JButton loginButton = new JButton("LOGIN");
+    JButton resetButton = new JButton("RESET");
+    JCheckBox showPassword = new JCheckBox("Show Password");
 
 
-public class login
-{
-	String uname;
-	String pass;
-	public void login() 
-	{
-		Scanner sc=new Scanner(System.in);
-		System.out.println("                 Welcome To MYBANK               ");
-		System.out.println("Enter Username:");
-		uname=sc.nextLine();
-		System.out.println("Enter Password");
-		pass=sc.next();
-		
-		if(uname.equals("admin"))
-		{
-			if(pass.contentEquals("admin"))
-			{
-		        System.out.println("Login Successfull");
-			}
-			else
-			{
-				System.out.println("please enter valid username and password");
-				System.exit(0);
-			}
-		}
-		else
-		{ 
-			System.out.println("please enter valid username and password");
-			System.exit(0);
-		}	
-		
-	}
-	
+    public logininfo() {
+        setLayoutManager();
+        setLocationAndSize();
+        addComponentsToContainer();
+        addActionEvent();
+
+    }
+
+    public void setLayoutManager() {
+        container.setLayout(null);
+    }
+
+    public void setLocationAndSize() {
+        userLabel.setBounds(50, 150, 100, 30);
+        passwordLabel.setBounds(50, 220, 100, 30);
+        userTextField.setBounds(150, 150, 150, 30);
+        passwordField.setBounds(150, 220, 150, 30);
+        showPassword.setBounds(150, 250, 150, 30);
+        loginButton.setBounds(50, 300, 100, 30);
+        resetButton.setBounds(200, 300, 100, 30);
+
+
+    }
+
+    public void addComponentsToContainer() {
+        container.add(userLabel);
+        container.add(passwordLabel);
+        container.add(userTextField);
+        container.add(passwordField);
+        container.add(showPassword);
+        container.add(loginButton);
+        container.add(resetButton);
+    }
+
+    public void addActionEvent() {
+        loginButton.addActionListener(this);
+        resetButton.addActionListener(this);
+        showPassword.addActionListener(this);
+    }
+
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        //Coding Part of LOGIN button
+        if (e.getSource() == loginButton) {
+            String userText;
+            String pwdText;
+            userText = userTextField.getText();
+            pwdText = passwordField.getText();
+            if (userText.equalsIgnoreCase("admin") && pwdText.equalsIgnoreCase("admin")) {
+                JOptionPane.showMessageDialog(this, "Login Successful");
+            } else {
+                JOptionPane.showMessageDialog(this, "Invalid Username or Password");
+            }
+
+        }
+        //Coding Part of RESET button
+        if (e.getSource() == resetButton) {
+            userTextField.setText("");
+            passwordField.setText("");
+        }
+       //Coding Part of showPassword JCheckBox
+        if (e.getSource() == showPassword) {
+            if (showPassword.isSelected()) {
+                passwordField.setEchoChar((char) 0);
+            } else {
+                passwordField.setEchoChar('*');
+            }
+
+
+        }
+    }
+
 }
+
+/*public class logininfo {
+    public static void main(String[] args) {
+        LoginFrame frame = new LoginFrame();
+        frame.setTitle("Login Form");
+        frame.setVisible(true);
+        frame.setBounds(10, 10, 370, 600);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setResizable(false);
+
+    }
+
+}*/
+
